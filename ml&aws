@@ -1,0 +1,31 @@
+# A python code to capture image, upload it on cloud, and analyse it using APIs
+#Capturing image from internal Cam.
+import cv2
+cap = cv2.VideoCapture(0)
+myphoto = "myimage.jpg"
+ret , photo = cap.read()
+cv2.imwrite(myphoto,photo)
+cap.release()
+#uploading captured image to aws storage
+import boto3
+s3 = boto3.resource('s3')
+upimage = "file.jpg"
+region = "ap-south-1"
+bucket = "jackiefer"
+s3.Bucket(bucket).upload_file(myphoto,upimage)
+#Analysing the image using APIs provided by aws
+rek = boto3.client('rekognition', region)
+response = rek.detect_text(
+    Image = {
+        'S3Object': {
+            'Bucket': bucket,
+            'Name': upimage
+        }
+    }   
+)
+#Printing the results
+print(response)
+
+#Output
+{'TextDetections': [{'DetectedText': 'Tushar Sharma', 'Type': 'LINE', 'Id': 0, 'Confidence': 97.74652862548828, 'Geometry': {'BoundingBox': {'Width': 0.7401604652404785, 'Height': 0.07521777600049973, 'Left': 0.12698371708393097, 'Top': 0.7540212273597717}, 'Polygon': [{'X': 0.12698371708393097, 'Y': 0.7550559043884277}, {'X': 0.866983950138092, 'Y': 0.7540212273597717}, {'X': 0.8671441674232483, 'Y': 0.828204333782196}, {'X': 0.1271439492702484, 'Y': 0.829239010810852}]}}, {'DetectedText': 'Tushar', 'Type': 'WORD', 'Id': 1, 'ParentId': 0, 'Confidence': 99.98885345458984, 'Geometry': {'BoundingBox': {'Width': 0.3328571319580078, 'Height': 0.07242788374423981, 'Left': 0.12714286148548126, 'Top': 0.7551724314689636}, 'Polygon': [{'X': 0.12714286148548126, 'Y': 0.7551724314689636}, {'X': 0.46000000834465027, 'Y': 0.7551724314689636}, {'X': 0.46142858266830444, 'Y': 0.8275862336158752}, {'X': 0.12714286148548126, 'Y': 0.8287356495857239}]}}, {'DetectedText': 'Sharma', 'Type': 'WORD', 'Id': 2, 'ParentId': 0, 'Confidence': 95.50420379638672, 'Geometry': {'BoundingBox': {'Width': 0.3785731792449951, 'Height': 0.07357709109783173, 'Left': 0.4871428608894348, 'Top': 0.7551724314689636}, 'Polygon': [{'X': 0.4871428608894348, 'Y': 0.7551724314689636}, {'X': 0.8657143115997314, 'Y': 0.754023015499115}, {'X': 0.8671428561210632, 'Y': 0.8275862336158752}, {'X': 0.4871428608894348, 'Y': 0.8287356495857239}]}}], 'TextModelVersion': '3.0', 'ResponseMetadata': {'RequestId': '140a54cb-d1f4-4d06-abd1-494e100e9783', 'HTTPStatusCode': 200, 'HTTPHeaders': {'content-type': 'application/x-amz-json-1.1', 'date': 'Sat, 03 Apr 2021 19:02:26 GMT', 'x-amzn-requestid': '140a54cb-d1f4-4d06-abd1-494e100e9783', 'content-length': '1335', 'connection': 'keep-alive'}, 'RetryAttempts': 0}}
+​
