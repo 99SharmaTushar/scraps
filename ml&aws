@@ -7,6 +7,7 @@ ret , photo = cap.read()
 cv2.imwrite(myphoto,photo)
 cap.release()
 #uploading captured image to aws storage
+#config aws with credentials before accessing aws resources
 import boto3
 s3 = boto3.resource('s3')
 upimage = "file.jpg"
